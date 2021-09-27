@@ -1,40 +1,76 @@
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { showToDos } from "../Redux/actions/Actions";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  cancelUpdate,
+  deleteTodos,
+  updateTodos,
+} from "../Redux/actions/Actions";
+import { Demo } from "./DisplayToDos/Demo";
 
-const DisplayTodos = () => {
-  // const { todoState, showToDos } = props;
-  // console.log("Todo State is: " + JSON.stringify(todoState.todo));
+const DisplayTodos = (props) => {
+  console.log("Props Data insid Display com", props);
+  const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   showToDos();
-  // }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+  };
   return (
     <>
-      <h4> Display ToDos Using GET Request</h4>
-      {/* {todoState.loading
-        ? "Loading......................"
-        : todoState.error
-        ? todoState.error.status
-        : todoState.todo.map((todoData) => {
-            return (
-              <div>
-                <span key={todoData.id}>{todoData.text}</span>
-              </div>
-            );
-          })} */}
+      <h4>Display ToDos Using Get Requst</h4>
+
+      {props.getToDos.todo.map((item) => {
+        if (item.status === true) {
+          return (
+            <>
+              <input
+                type="text"
+                name="text"
+                defaultValue={item.text}
+                onChange={handleChange}
+              />
+              <button>Save Update</button>
+              <button
+                onClick={() => {
+                  dispatch(cancelUpdate());
+                }}
+              >
+                Cancel
+              </button>{" "}
+              <br /> <br />
+            </>
+          );
+        } else {
+          return (
+            <div key={item.id}>
+              <span>{item.text}</span>
+
+              <button
+                type="button"
+                style={{ marginLeft: "10px" }}
+                onClick={() => {
+                  dispatch(updateTodos(item.id));
+                }}
+              >
+                {" "}
+                Update
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  dispatch(deleteTodos(item.id));
+                }}
+                style={{ marginLeft: "10px" }}
+              >
+                {" "}
+                delete
+              </button>
+            </div>
+          );
+        }
+      })}
     </>
   );
 };
-
-// const mapStateToProps = (state) => ({
-//   todoState: state,
-// });
-
-// const mapDispatchToProps = (dispatch) => {
-//   return {
-//     showToDos: () => dispatch(showToDos()),
-//   };
-// };
 
 export default DisplayTodos;

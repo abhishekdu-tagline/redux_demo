@@ -1,50 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
-import { showToDos } from "../Redux/actions/Actions";
-import { addToDos } from "../Redux/actions/addToDosAction";
+import { useDispatch, useSelector } from "react-redux";
+import { addToDos, fetchToDos } from "../Redux/actions/Actions";
 import DisplayTodos from "./DisplayTodos";
 
 const ToDos = (props) => {
-  //   console.log("Properties:", props);
-  const { addToDos, todoState, showToDos } = props;
-  const [toDosObj, settoDosObj] = useState({});
+  const [toDosObj, settoDosObj] = useState({ text: "" });
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchToDos());
+  }, [dispatch]);
+
+  const state = useSelector((state) => state);
+  console.log("Redux State Data is", state.todo);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    settoDosObj({ ...toDosObj, [name]: value, id: Math.random() * 10000 });
+    let newObj = {
+      ...toDosObj,
+      [name]: value,
+      status: false,
+      id: Math.random() * 1000000,
+    };
+    settoDosObj(newObj);
   };
-  //   console.log("ToDos Object is: " + JSON.stringify(toDosObj));
 
+  const callActions = () => {
+    dispatch(addToDos(toDosObj));
+    settoDosObj({ text: "" });
+  };
+
+  // console.log("Todos Object is", toDosObj);
   return (
     <>
-      <h4> Add ToDos Using POST Request</h4>
+      <h4> HTTP POST request</h4>
 
       <input
         type="text"
         name="text"
-        placeholder="Add ToDos...."
+        placeholder="Enter ToDos...."
+        value={toDosObj.text}
         onChange={handleChange}
       />
-      <button
-        type="submit"
-        onClick={() => {
-          addToDos(toDosObj);
-        }}
-      >
+      <button type="button" onClick={callActions}>
         Add ToDos
       </button>
-      <DisplayTodos />
+
+      <DisplayTodos getToDos={state} />
     </>
   );
 };
 
-const mapStateToProps = (state) => ({
-  todoState: state,
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  showToDos: () => dispatch(showToDos()),
-  addToDos: (toDosObj) => dispatch(addToDos(toDosObj)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ToDos);
+export default ToDos;
